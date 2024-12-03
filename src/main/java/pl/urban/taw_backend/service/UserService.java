@@ -2,6 +2,7 @@ package pl.urban.taw_backend.service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.urban.taw_backend.dto.UserDTO;
 import pl.urban.taw_backend.model.User;
 import pl.urban.taw_backend.repository.UserRepository;
 
@@ -38,6 +39,22 @@ public class UserService {
     public User getUserBySubject(String subject) {
         return userRepository.findByEmail(subject)
                 .orElseThrow(() -> new IllegalArgumentException("User with this email not found"));
+    }
+
+    public UserDTO getUser(String subject) {
+        User user = getUserBySubject(subject);
+        return convertToDTO(user);
+    }
+
+    public UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setName(user.getName());
+        dto.setRole(String.valueOf(user.getRole()));
+        return dto;
+
+
     }
 
 }

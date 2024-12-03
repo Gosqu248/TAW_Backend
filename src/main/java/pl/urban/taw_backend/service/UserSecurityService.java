@@ -59,7 +59,7 @@ public class UserSecurityService {
         emailService.sendEmail(user.getEmail(), "Kod dostępu do restauracji TAW", emailContent);
     }
 
-    private boolean verifyTwoFactorCode(User user, String code) {
+    public boolean verifyTwoFactorCode(User user, String code) {
         UserSecurity userSecurity = user.getUserSecurity();
 
         return userSecurity != null && userSecurity.getTwoFactorCode().equals(code) && userSecurity.getTwoFactorCodeExpireTime() > System.currentTimeMillis();
