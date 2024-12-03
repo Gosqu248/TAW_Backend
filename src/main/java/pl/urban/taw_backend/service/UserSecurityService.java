@@ -7,8 +7,10 @@ import pl.urban.taw_backend.repository.UserSecurityRepository;
 public class UserSecurityService {
 
     private final UserSecurityRepository userSecurityRepository;
+    private final EmailService emailService;
 
-    public UserSecurityService(UserSecurityRepository userSecurityRepository) {
+    public UserSecurityService(UserSecurityRepository userSecurityRepository, EmailService emailService) {
         this.userSecurityRepository = userSecurityRepository;
+        this.emailService = emailService;
     }
 }

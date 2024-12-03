@@ -20,12 +20,12 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String username;
-
-    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
+    private String surname;
+
+    @Column(nullable = true)
     private String phoneNumber;
 
     @Column(nullable = false)

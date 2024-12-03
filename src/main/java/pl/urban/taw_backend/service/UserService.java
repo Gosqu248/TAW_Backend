@@ -2,6 +2,7 @@ package pl.urban.taw_backend.service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.urban.taw_backend.model.User;
 import pl.urban.taw_backend.repository.UserRepository;
 
 @Service
@@ -15,6 +16,28 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    public void registerUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("User with this email already exists");
+        }
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+    }
 
+    public Boolean changePassword(String subject, String password, String newPassword) {
+        User user = getUserBySubject(subject);
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Old password does not match");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
+
+    public User getUserBySubject(String subject) {
+        return userRepository.findByEmail(subject)
+                .orElseThrow(() -> new IllegalArgumentException("User with this email not found"));
+    }
 
 }
