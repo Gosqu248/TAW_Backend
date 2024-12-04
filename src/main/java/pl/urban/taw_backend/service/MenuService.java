@@ -31,10 +31,12 @@ public class MenuService {
     public Menu updateMenu(Long menuId, Menu updatedMenu) {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new IllegalArgumentException("Menu with this id not found"));
+
         menu.setName(updatedMenu.getName());
         menu.setPrice(updatedMenu.getPrice());
         menu.setCategory(updatedMenu.getCategory());
         menu.setIngredients(updatedMenu.getIngredients());
+        menu.setImage(updatedMenu.getImage());
         return menuRepository.save(menu);
     }
 
