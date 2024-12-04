@@ -34,12 +34,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-         try {
-             userService.registerUser(user);
-             return ResponseEntity.ok("User registered successfully");
-         } catch (Exception e) {
-             return ResponseEntity.badRequest().build();
-         }
+        userService.registerUser(user);
+        return ResponseEntity.ok("User registered successfully");
+
     }
 
     @PostMapping("/login")
@@ -84,16 +81,12 @@ public class AuthController {
 
     @PutMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody Map<String, String> passwords) {
-        try {
             String subject = jwtToken.extractSubjectFromToken(token.substring(7));
             String  oldPassword = passwords.get("oldPassword");
             String newPassword = passwords.get("newPassword");
             userService.changePassword(subject, oldPassword, newPassword);
 
             return ResponseEntity.ok("Password changed successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Password change failed");
-        }
     }
 
 }

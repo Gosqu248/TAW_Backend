@@ -22,11 +22,8 @@ public class GoogleAuthController {
 
     @GetMapping("/google")
     public ResponseEntity<JwtResponse> googleLoginSuccess(@AuthenticationPrincipal OAuth2User principal) {
-        try {
-            return ResponseEntity.ok(new JwtResponse(googleAuthService.googleLogin(principal)));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(new JwtResponse(googleAuthService.googleLogin(principal)));
+
     }
 
     @GetMapping("/google/failure")
