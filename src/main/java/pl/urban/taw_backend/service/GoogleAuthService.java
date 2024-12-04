@@ -27,6 +27,6 @@ public class GoogleAuthService {
             newUser.setName(name);
             return userRepository.save(newUser);
         });
-         return jwtToken.generateToken(user);
+        return jwtToken.generateToken(user);
     }
 }
