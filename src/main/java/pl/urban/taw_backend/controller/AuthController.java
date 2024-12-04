@@ -14,6 +14,8 @@ import pl.urban.taw_backend.security.JwtUtil;
 import pl.urban.taw_backend.service.UserSecurityService;
 import pl.urban.taw_backend.service.UserService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -80,5 +82,18 @@ public class AuthController {
         return ResponseEntity.ok(userService.getUser(token));
     }
 
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody Map<String, String> passwords) {
+        try {
+            String subject = jwtToken.extractSubjectFromToken(token.substring(7));
+            String  oldPassword = passwords.get("oldPassword");
+            String newPassword = passwords.get("newPassword");
+            userService.changePassword(subject, oldPassword, newPassword);
+
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Password change failed");
+        }
+    }
 
 }
