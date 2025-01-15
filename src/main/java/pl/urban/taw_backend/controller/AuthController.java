@@ -94,7 +94,8 @@ public class AuthController {
 
     @GetMapping("/user")
     public ResponseEntity<UserDTO> getUser(@RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(userService.getUser(token));
+        String subject = jwtToken.extractSubjectFromToken(token.substring(7));
+        return ResponseEntity.ok(userService.getUser(subject));
     }
 
     @PutMapping("/change-password")
@@ -105,6 +106,13 @@ public class AuthController {
             userService.changePassword(subject, oldPassword, newPassword);
 
             return ResponseEntity.ok("Password changed successfully");
+    }
+
+    @PutMapping("/updateData")
+    public ResponseEntity<String>  changeUserName(@RequestHeader("Authorization") String token, @RequestBody String name, @RequestBody String phoneNumber) {
+        String subject = jwtToken.extractSubjectFromToken(token.substring(7));
+        String updatedName = userService.changeUserInfo(subject, name, phoneNumber);
+        return ResponseEntity.ok(updatedName);
     }
 
 }

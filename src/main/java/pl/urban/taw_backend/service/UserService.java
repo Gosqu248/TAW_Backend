@@ -50,8 +50,16 @@ public class UserService {
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setName(user.getName());
+        dto.setPhoneNumber(user.getPhoneNumber());
         dto.setRole(String.valueOf(user.getRole()));
         return dto;
     }
 
+    public String changeUserInfo(String subject, String name, String phoneNumber) {
+        User user = getUserBySubject(subject);
+        user.setName(name);
+        user.setPhoneNumber(phoneNumber);
+        userRepository.save(user);
+        return "User info updated successfully";
+    }
 }
