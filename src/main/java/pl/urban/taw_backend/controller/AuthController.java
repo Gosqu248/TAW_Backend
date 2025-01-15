@@ -1,9 +1,11 @@
 package pl.urban.taw_backend.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pl.urban.taw_backend.dto.UserDTO;
 import pl.urban.taw_backend.model.User;
@@ -14,6 +16,7 @@ import pl.urban.taw_backend.security.JwtUtil;
 import pl.urban.taw_backend.service.UserSecurityService;
 import pl.urban.taw_backend.service.UserService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -22,40 +25,55 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtToken;
-    private final AuthenticationManager authenticationManager;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final UserSecurityService userSecurityService;
 
-    public AuthController(UserService userService, JwtUtil jwtToken, AuthenticationManager authenticationManager, UserSecurityService userSecurityService) {
+    public AuthController(UserService userService, JwtUtil jwtToken, BCryptPasswordEncoder passwordEncoder, UserSecurityService userSecurityService) {
         this.userService = userService;
         this.jwtToken = jwtToken;
-        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
         this.userSecurityService = userSecurityService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully");
-
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) throws Exception {
-        User user = userService.getUserBySubject(loginRequest.getEmail());
-
-        if ( userSecurityService.isAccountLocked(user)) {
-            return ResponseEntity.status(423).body("Account is locked. Try again later.");
-        }
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
 
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            User user = userService.getUserBySubject(loginRequest.getEmail());
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid credentials");
+            }
+
+            if (userSecurityService.isAccountLocked(user)) {
+                return ResponseEntity.status(423)
+                        .body("Account is locked. Try again later.");
+            }
+
+            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                userSecurityService.incrementFailedLoginAttempts(user);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid credentials");
+            }
+
             userSecurityService.resetFailedLoginAttempts(user);
             userSecurityService.generateAndSendTwoFactorCode(user);
-        } catch (BadCredentialsException e) {
-            userSecurityService.incrementFailedLoginAttempts(user);
-            throw new Exception("Incorrect email or password", e);
+
+            return ResponseEntity.ok(true);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred during login");
         }
-        return ResponseEntity.ok(true);
     }
 
     @PostMapping("/verify-2fa")

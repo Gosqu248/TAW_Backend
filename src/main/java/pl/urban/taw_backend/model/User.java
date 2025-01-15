@@ -23,9 +23,6 @@ public class User {
     private String name;
 
     @Column(nullable = true)
-    private String surname;
-
-    @Column(nullable = true)
     private String phoneNumber;
 
     @Column(nullable = false, unique = true)
@@ -36,7 +33,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.ROLE_user;
+    private Role role = Role.user;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

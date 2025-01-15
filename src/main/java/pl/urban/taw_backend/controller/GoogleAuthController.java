@@ -21,13 +21,16 @@ public class GoogleAuthController {
     }
 
     @GetMapping("/google")
-    public ResponseEntity<JwtResponse> googleLoginSuccess(@AuthenticationPrincipal OAuth2User principal) {
-        return ResponseEntity.ok(new JwtResponse(googleAuthService.googleLogin(principal)));
-
+    ResponseEntity<JwtResponse> googleLoginSuccess(@AuthenticationPrincipal OAuth2User principal) {
+        try {
+            return ResponseEntity.ok(new JwtResponse(googleAuthService.googleLogin(principal)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/google/failure")
-    public ResponseEntity<?> googleLoginFailure() {
+    ResponseEntity<?> googleLoginFailure() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Logowanie przez Google nie powiodło się.");
     }
 
