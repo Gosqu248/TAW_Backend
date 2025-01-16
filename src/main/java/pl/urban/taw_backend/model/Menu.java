@@ -29,8 +29,12 @@ public class Menu {
     @Column(nullable = false)
     private double price;
 
+    @Lob
     @Column(nullable = true)
-    private String image;
+    private byte[] image;
+
+    @Column(nullable = true)
+    private String imageUrl;
 
     @JsonIgnore
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)

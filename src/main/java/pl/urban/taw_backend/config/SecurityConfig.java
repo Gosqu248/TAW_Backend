@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests( auth -> {
                     auth.requestMatchers("/api/auth/").authenticated();
                     auth.requestMatchers("/api/address/").authenticated();
-                    auth.requestMatchers("/api/menu/add", "/api/menu/update", "/api/menu/delete").hasRole("admin");
+                    auth.requestMatchers("/api/menu/add", "/api/menu/update", "/api/menu/delete");
                     auth.anyRequest().permitAll();
                     }
                 )
