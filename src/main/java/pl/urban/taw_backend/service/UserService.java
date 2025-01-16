@@ -25,7 +25,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void changePassword(String subject, String password, String newPassword) {
+    public Boolean changePassword(String subject, String password, String newPassword) {
         User user = getUserBySubject(subject);
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Old password does not match");
@@ -33,6 +33,7 @@ public class UserService {
 
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
+        return true;
     }
 
     public User getUserBySubject(String subject) {
@@ -61,5 +62,12 @@ public class UserService {
         user.setPhoneNumber(phoneNumber);
         userRepository.save(user);
         return "User info updated successfully";
+    }
+
+    public String updatePasswordByMail(String subject, String newPassword) {
+        User user = getUserBySubject(subject);
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return "Password changed successfully";
     }
 }

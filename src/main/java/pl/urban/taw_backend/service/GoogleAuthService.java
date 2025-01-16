@@ -32,6 +32,6 @@ public class GoogleAuthService {
             newUser.setRole(Role.user);
             return userRepository.save(newUser);
         });
-        return jwtToken.generateToken(user);
+        return jwtToken.generateToken(user, false);
     }
 }
