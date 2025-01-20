@@ -13,7 +13,6 @@ import java.util.List;
 public class OrderDTO {
 
     private Long id;
-    private String deliveryOption;
     private String deliveryTime;
     private List<OrderMenu> orderMenus;
     private String paymentId;

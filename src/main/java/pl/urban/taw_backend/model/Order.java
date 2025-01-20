@@ -31,7 +31,7 @@ public class Order {
 
     private String comment;
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true)
     private String paymentId;
 
     @Column(nullable = false)
@@ -44,7 +44,7 @@ public class Order {
     private User user;
 
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderMenu> orderMenus;
 
 

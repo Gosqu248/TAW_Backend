@@ -1,7 +1,9 @@
 package pl.urban.taw_backend.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.urban.taw_backend.dto.CreateOrderDTO;
 import pl.urban.taw_backend.dto.OrderDTO;
 import pl.urban.taw_backend.model.Order;
 import pl.urban.taw_backend.security.JwtUtil;
@@ -34,8 +36,12 @@ public class OrderController {
 
     @PostMapping("/createOrder")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        return ResponseEntity.ok(orderService.createOrder(order));
+        try {
+            Order createdOrder = orderService.createOrder(order);
+            return ResponseEntity.ok(createdOrder);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
-
 
 }
