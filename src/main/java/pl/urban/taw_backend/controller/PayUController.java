@@ -1,6 +1,7 @@
 package pl.urban.taw_backend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.urban.taw_backend.model.Order;
@@ -24,7 +25,12 @@ public class PayUController {
 
     @GetMapping("/getPaymentStatus")
     public ResponseEntity<String> getPayUOrderStatus(@RequestParam String orderId) {
-        return ResponseEntity.ok(payUService.getOrderStatus(orderId));
+        try {
+            String status = payUService.getOrderStatus(orderId);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 

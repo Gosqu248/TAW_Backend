@@ -40,8 +40,4 @@ public class Address {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Order> order;
-
 }

@@ -9,6 +9,5 @@ public class MenuDTO {
     private String category;
     private String ingredients;
     private double price;
-    private byte[] image;
     private String imageUrl;
 }

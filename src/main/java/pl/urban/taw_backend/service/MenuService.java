@@ -78,7 +78,7 @@ public class MenuService {
                 .orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
 
         if (menu.getImage() == null) {
-            throw new ResourceNotFoundException("Image not found for menu item: " + id);
+            return new byte[0];
         }
 
         return decompressImage(menu.getImage());
@@ -163,7 +163,6 @@ public class MenuService {
         menuDTO.setPrice(menu.getPrice());
         menuDTO.setCategory(menu.getCategory());
         menuDTO.setIngredients(menu.getIngredients());
-        menuDTO.setImage(menu.getImage());
         menuDTO.setImageUrl(menu.getImageUrl());
         return menuDTO;
     }

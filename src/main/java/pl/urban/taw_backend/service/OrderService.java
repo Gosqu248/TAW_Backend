@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.urban.taw_backend.dto.OrderDTO;
 import pl.urban.taw_backend.model.*;
 import pl.urban.taw_backend.repository.AddressRepository;
+import pl.urban.taw_backend.repository.MenuRepository;
 import pl.urban.taw_backend.repository.OrderRepository;
 import pl.urban.taw_backend.repository.UserRepository;
 
@@ -17,12 +18,13 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository) {
+    private final MenuRepository menuRepository;
+
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, MenuRepository menuRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
-        this.addressRepository = addressRepository;
+        this.menuRepository = menuRepository;
     }
 
 
@@ -49,9 +51,7 @@ public class OrderService {
 
             order.setStatus(orderRequest.getStatus());
             order.setTotalPrice(orderRequest.getTotalPrice());
-            order.setTotalPrice(orderRequest.getTotalPrice());
             order.setDeliveryTime(orderRequest.getDeliveryTime());
-            order.setDeliveryOption(orderRequest.getDeliveryOption());
             order.setComment(orderRequest.getComment());
             order.setPaymentMethod(orderRequest.getPaymentMethod());
             order.setPaymentId(orderRequest.getPaymentId());
@@ -60,9 +60,6 @@ public class OrderService {
                     .orElseThrow(() -> new IllegalArgumentException("User with id " + orderRequest.getUser().getId() + " not found"));
             order.setUser(user);
 
-            Address address = addressRepository.findById(orderRequest.getAddress().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Address with id " + orderRequest.getAddress().getId() + " not found"));
-            order.setAddress(address);
 
             List<OrderMenu> orderMenus = new ArrayList<>();
             if(orderRequest.getOrderMenus() != null && !orderRequest.getOrderMenus().isEmpty()) {
@@ -70,7 +67,10 @@ public class OrderService {
                    OrderMenu orderMenu = new OrderMenu();
 
                    orderMenu.setQuantity(requestOrderMenu.getQuantity());
-                   orderMenu.setMenu(requestOrderMenu.getMenu());
+                   Menu menu = menuRepository.findById(requestOrderMenu.getMenu().getId())
+                           .orElseThrow(() -> new IllegalArgumentException("Menu with id " + requestOrderMenu.getMenu().getId() + " not found"));
+
+                   orderMenu.setMenu(menu);
                    orderMenu.setOrder(order);
 
                    orderMenus.add(orderMenu);
@@ -88,7 +88,6 @@ public class OrderService {
         OrderDTO orderDTO = new OrderDTO();
 
         orderDTO.setId(order.getId());
-        orderDTO.setDeliveryOption(order.getDeliveryOption());
         orderDTO.setDeliveryTime(order.getDeliveryTime());
         orderDTO.setOrderMenus(order.getOrderMenus());
         orderDTO.setPaymentId(order.getPaymentId());

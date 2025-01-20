@@ -150,7 +150,7 @@ public class PayUService {
         }
 
         Request request = new Request.Builder()
-                .url(payuApiUrl + orderId)
+                .url(payuApiUrl + "/" + orderId)
                 .get()
                 .addHeader("Authorization", "Bearer " + token)
                 .build();

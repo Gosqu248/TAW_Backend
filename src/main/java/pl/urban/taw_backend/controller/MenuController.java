@@ -30,6 +30,13 @@ public class MenuController {
     public ResponseEntity<List<MenuDTO>> getAllMenus() {
         return ResponseEntity.ok(menuService.getAllMenus());
     }
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getMenuImage(@PathVariable Long id) {
+        byte[] imageData = menuService.getMenuImage(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageData);
+    }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Menu> addMenu(@RequestPart("menu") Menu menu,
@@ -45,13 +52,6 @@ public class MenuController {
         return ResponseEntity.ok(menuService.updateMenu(id, menu, image));
     }
 
-    @GetMapping("/{id}/image")
-    public ResponseEntity<byte[]> getMenuImage(@PathVariable Long id) {
-        byte[] imageData = menuService.getMenuImage(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageData);
-    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('admin')")

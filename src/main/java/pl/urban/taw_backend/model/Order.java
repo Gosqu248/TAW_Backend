@@ -29,8 +29,6 @@ public class Order {
     @Column(nullable = false)
     private String deliveryTime;
 
-    private String deliveryOption;
-
     private String comment;
 
     @Column(nullable = true, unique = true)
@@ -45,9 +43,6 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private Address address;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderMenu> orderMenus;
