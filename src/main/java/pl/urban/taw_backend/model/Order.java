@@ -44,9 +44,8 @@ public class Order {
     private User user;
 
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderMenu> orderMenus;
-
 
     @PrePersist
     protected void onCreate() {
