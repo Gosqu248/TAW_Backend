@@ -31,10 +31,14 @@ public class Menu {
 
     @Lob
     @Column(nullable = true)
+    @Basic(fetch = FetchType.LAZY)
     private byte[] image;
 
     @Column(nullable = true)
     private String imageUrl;
+
+    @Column(nullable = false)
+    private Boolean available = true;
 
     @JsonIgnore
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)

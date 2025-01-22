@@ -1,5 +1,6 @@
 package pl.urban.taw_backend.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,7 +68,14 @@ public class SecurityConfig {
                                 response.sendRedirect("http://localhost:4200?error=true");
                             });
                 })
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+                            response.setHeader("Access-Control-Allow-Credentials", "true");
+                            response.getWriter().write("Unauthorized");
+                        }));
 
         return http.build();
     }

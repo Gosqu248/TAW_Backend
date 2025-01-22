@@ -1,5 +1,6 @@
 package pl.urban.taw_backend.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import pl.urban.taw_backend.dto.MenuDTO;
 import pl.urban.taw_backend.exception.MenuServiceException;
@@ -26,11 +27,12 @@ public class MenuService {
     @Autowired
     private MenuRepository menuRepository;
 
-    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; //10MB
     private static final String[] ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/jpg", "image/webp"};
 
+    @Transactional
     public List<MenuDTO> getAllMenus() {
-        return menuRepository.findAll().stream()
+        return menuRepository.findAllByAvailableTrue().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -88,8 +90,8 @@ public class MenuService {
         Menu menu = menuRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
 
-        menuRepository.delete(menu);
-        log.info("Successfully deleted menu item: {}", menu.getName());
+        menu.setAvailable(false);
+        menuRepository.save(menu);
     }
 
     private void validateMenuItem(Menu menu) {
