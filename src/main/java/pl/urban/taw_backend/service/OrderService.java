@@ -1,11 +1,9 @@
 package pl.urban.taw_backend.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import pl.urban.taw_backend.dto.CreateOrderDTO;
-import pl.urban.taw_backend.dto.OrderDTO;
-import pl.urban.taw_backend.dto.OrderMenuDTO;
+import pl.urban.taw_backend.dto.*;
+import pl.urban.taw_backend.enums.OrderStatus;
 import pl.urban.taw_backend.model.*;
 import pl.urban.taw_backend.repository.MenuRepository;
 import pl.urban.taw_backend.repository.OrderRepository;
@@ -47,11 +45,19 @@ public class OrderService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<OrderDTO> getAllOrders() {
+    public List<AdminOrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
         return orders.stream()
-                .map(this::convertToOrderDTO)
+                .map(this::convertToAdminOrderDTO)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public OrderStatus changeOrderStatus(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Order with id " + id + " not found"));
+        order.setStatus(OrderStatus.zapłacone);
+        orderRepository.save(order);
+        return order.getStatus();
     }
 
 
@@ -113,5 +119,25 @@ public class OrderService {
         orderMenuDTO.setQuantity(orderMenu.getQuantity());
         orderMenuDTO.setMenuId(orderMenu.getMenu().getId());
         return orderMenuDTO;
+    }
+
+    public AdminOrderDTO convertToAdminOrderDTO(Order order) {
+        AdminOrderDTO adminOrderDTO = new AdminOrderDTO();
+        adminOrderDTO.setId(order.getId());
+        adminOrderDTO.setDeliveryTime(order.getDeliveryTime());
+        adminOrderDTO.setPaymentId(order.getPaymentId());
+        adminOrderDTO.setPaymentMethod(order.getPaymentMethod());
+        adminOrderDTO.setComment(order.getComment());
+        adminOrderDTO.setStatus(order.getStatus());
+        adminOrderDTO.setTotalPrice(order.getTotalPrice());
+        adminOrderDTO.setOrderDate(order.getOrderDate());
+        adminOrderDTO.setUserName(order.getUser().getName());
+        adminOrderDTO.setUserEmail(order.getUser().getEmail());
+        adminOrderDTO.setUserPhone(order.getUser().getPhoneNumber());
+        List<OrderMenuDTO> orderMenusDTO = order.getOrderMenus().stream()
+                .map(this::convertToOrderMenuDTO)
+                .collect(Collectors.toCollection(ArrayList::new));
+        adminOrderDTO.setOrderMenus(orderMenusDTO);
+        return adminOrderDTO;
     }
 }

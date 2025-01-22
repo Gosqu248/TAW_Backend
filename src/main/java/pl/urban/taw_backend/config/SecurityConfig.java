@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 import pl.urban.taw_backend.security.JwtTokenFilter;
 import pl.urban.taw_backend.service.GoogleAuthService;
 
@@ -21,10 +22,12 @@ public class SecurityConfig {
 
     private final JwtTokenFilter jwtTokenFilter;
     private final GoogleAuthService googleAuthService;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(JwtTokenFilter jwtTokenFilter, GoogleAuthService googleAuthService) {
+    public SecurityConfig(JwtTokenFilter jwtTokenFilter, GoogleAuthService googleAuthService, CorsConfigurationSource corsConfigurationSource) {
         this.jwtTokenFilter = jwtTokenFilter;
         this.googleAuthService = googleAuthService;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -40,20 +43,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests( auth -> {
+                .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/auth/").authenticated();
                     auth.requestMatchers("/api/address/").authenticated();
-                    auth.requestMatchers("/api/menu/add", "/api/menu/update", "/api/menu/delete");
+                    auth.requestMatchers("/api/menu/add", "/api/menu/update", "/api/menu/delete").hasRole("ADMIN");
+                    auth.requestMatchers("/api/order/all").hasRole("ADMIN");
+                    auth.requestMatchers("/api/order/changeStatus/**").hasRole("ADMIN");
                     auth.anyRequest().permitAll();
-                    }
-                )
-                .sessionManagement( session -> session
+                })
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .oauth2Login(oauth2login -> {
                     oauth2login
-                            .successHandler((request, response, authentication) ->{
+                            .successHandler((request, response, authentication) -> {
                                 OAuth2User principal = (OAuth2User) authentication.getPrincipal();
                                 String token = googleAuthService.googleLogin(principal);
                                 response.sendRedirect("http://localhost:4200?token=" + token);
@@ -66,6 +71,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }

@@ -45,7 +45,6 @@ public class MenuController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Menu> updateMenu(@PathVariable Long id,
                                            @RequestPart("menu") Menu menu,
                                            @RequestPart(value = "image", required = false) MultipartFile image) {
@@ -54,7 +53,6 @@ public class MenuController {
 
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> deleteMenu(@PathVariable Long id) {
         menuService.deleteMenu(id);
         return ResponseEntity.noContent().build();

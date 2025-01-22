@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.urban.taw_backend.dto.CreateOrderDTO;
+import pl.urban.taw_backend.dto.OrderDTO;
 import pl.urban.taw_backend.model.Order;
 import pl.urban.taw_backend.service.PayUService;
 
@@ -19,7 +21,7 @@ public class PayUController {
         this.payUService = payUService;
     }
     @PostMapping("/createPayment")
-    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Order order) {
+    public ResponseEntity<Map<String, String>> createPayment(@RequestBody CreateOrderDTO order) {
             return ResponseEntity.ok(payUService.createOrder(order));
     }
 

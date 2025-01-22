@@ -11,9 +11,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import pl.urban.taw_backend.dto.CreateOrderDTO;
+import pl.urban.taw_backend.dto.OrderMenuDTO;
+import pl.urban.taw_backend.model.Menu;
 import pl.urban.taw_backend.model.Order;
 import org.springframework.http.HttpHeaders;
 import pl.urban.taw_backend.model.OrderMenu;
+import pl.urban.taw_backend.repository.MenuRepository;
 import pl.urban.taw_backend.request.PayUOrderRequest;
 
 import java.io.IOException;
@@ -21,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PayUService {
@@ -36,12 +41,14 @@ public class PayUService {
 
     private final RestTemplate restTemplate;
     private final OkHttpClient client = new OkHttpClient();
+    private final MenuRepository menuRepository;
 
     private static String accessToken = null;
     private static Instant tokenExpiration = null;
 
-    public PayUService(RestTemplate restTemplate) {
+    public PayUService(RestTemplate restTemplate, MenuRepository menuRepository) {
         this.restTemplate = restTemplate;
+        this.menuRepository = menuRepository;
     }
 
     public String getOAuthToken() {
@@ -83,7 +90,7 @@ public class PayUService {
         }
     }
 
-    public Map<String, String> createOrder(Order order) {
+    public Map<String, String> createOrder(CreateOrderDTO order) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         String token = getOAuthToken();
@@ -129,17 +136,18 @@ public class PayUService {
     }
 
     @NotNull
-    private static List<PayUOrderRequest.Product> getProducts(Order order) {
-        List<PayUOrderRequest.Product> products = new ArrayList<>();
-        List<OrderMenu> orderMenus = order.getOrderMenus();
-        for (OrderMenu orderMenu : orderMenus) {
-            PayUOrderRequest.Product product = new PayUOrderRequest.Product();
-            product.setName(orderMenu.getMenu().getName());
-            product.setUnitPrice(String.valueOf((int) (orderMenu.getMenu().getPrice() * 100)));
-            product.setQuantity(String.valueOf(orderMenu.getQuantity()));
-            products.add(product);
-        }
-        return products;
+    private List<PayUOrderRequest.Product> getProducts(CreateOrderDTO order) {
+        return order.getOrderMenus().stream()
+                .map(orderMenu -> {
+                    PayUOrderRequest.Product product = new PayUOrderRequest.Product();
+                    Menu menu = menuRepository.findById(orderMenu.getMenuId())
+                            .orElseThrow(() -> new IllegalArgumentException("Menu with id " + orderMenu.getMenuId() + " not found"));
+                    product.setName(menu.getName());
+                    product.setUnitPrice(String.valueOf((int) (menu.getPrice() * 100)));
+                    product.setQuantity(String.valueOf(orderMenu.getQuantity()));
+                    return product;
+                })
+                .collect(Collectors.toList());
     }
 
     public  String getOrderStatus(String orderId) {
