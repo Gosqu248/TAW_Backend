@@ -1,6 +1,7 @@
 package pl.urban.taw_backend.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +21,8 @@ import pl.urban.taw_backend.service.GoogleAuthService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
     private final JwtTokenFilter jwtTokenFilter;
     private final GoogleAuthService googleAuthService;
     private final CorsConfigurationSource corsConfigurationSource;
@@ -62,17 +64,17 @@ public class SecurityConfig {
                             .successHandler((request, response, authentication) -> {
                                 OAuth2User principal = (OAuth2User) authentication.getPrincipal();
                                 String token = googleAuthService.googleLogin(principal);
-                                response.sendRedirect("http://localhost:4200?token=" + token);
+                                response.sendRedirect(frontendUrl + "?token=" + token);
                             })
                             .failureHandler((request, response, exception) -> {
-                                response.sendRedirect("http://localhost:4200?error=true");
+                                response.sendRedirect(frontendUrl + "?error=true");
                             });
                 })
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+                            response.setHeader("Access-Control-Allow-Origin", frontendUrl);
                             response.setHeader("Access-Control-Allow-Credentials", "true");
                             response.getWriter().write("Unauthorized");
                         }));
